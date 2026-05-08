@@ -1,0 +1,380 @@
+{
+  "menu": [
+    {
+      "category": "Салаты",
+      "items": [
+        {
+          "name": "Achichuk",
+          "price": 40000
+        },
+        {
+          "name": "Crispy Eggplant",
+          "price": 85000
+        },
+        {
+          "name": "Caesar salad",
+          "price": 75000
+        },
+        {
+          "name": "Vitamin salad",
+          "price": 40000
+        },
+        {
+          "name": "Xon Atlas salad",
+          "price": 85000
+        },
+        {
+          "name": "Greek salad",
+          "price": 60000
+        }
+      ]
+    },
+    {
+      "category": "Холодные Закуски",
+      "items": [
+        {
+          "name": "Vegetable Assortment",
+          "price": 65000
+        },
+        {
+          "name": "Bukhara Chakka",
+          "price": 30000
+        },
+        {
+          "name": "Pickled Assortment",
+          "price": 50000
+        }
+      ]
+    },
+    {
+      "category": "Горячие Закуски",
+      "items": [
+        {
+          "name": "Samsa",
+          "price": 15000
+        },
+        {
+          "name": "Dolma",
+          "price": 50000
+        },
+        {
+          "name": "Bichak",
+          "price": 10000
+        },
+        {
+          "name": "Tuhum Barak",
+          "price": 10000
+        }
+      ]
+    },
+    {
+      "category": "Супы",
+      "items": [
+        {
+          "name": "Beef Shurpa",
+          "price": 50000
+        },
+        {
+          "name": "Balaza",
+          "price": 50000
+        },
+        {
+          "name": "Meatball soup",
+          "price": 45000
+        },
+        {
+          "name": "Dumplings soup",
+          "price": 45000
+        },
+        {
+          "name": "Chicken Noodle soup",
+          "price": 40000
+        },
+        {
+          "name": "Dhal",
+          "price": 40000
+        }
+      ]
+    },
+    {
+      "category": "Основные Блюда",
+      "items": [
+        {
+          "name": "Osh Sofi",
+          "price": 65000
+        },
+        {
+          "name": "Lagman",
+          "price": 65000
+        },
+        {
+          "name": "Kayish Classic",
+          "price": 65000
+        },
+        {
+          "name": "Kayish vegetarian",
+          "price": 60000
+        },
+        {
+          "name": "Beef Jizz",
+          "price": 100000
+        },
+        {
+          "name": "Kazan lamb kabob",
+          "price": 110000
+        },
+        {
+          "name": "Chicken jizz",
+          "price": 85000
+        },
+        {
+          "name": "Dimlama",
+          "price": 100000
+        }
+      ]
+    },
+    {
+      "category": "Гарниры",
+      "items": [
+        {
+          "name": "French Fries",
+          "price": 35000
+        },
+        {
+          "name": "Rice",
+          "price": 35000
+        },
+        {
+          "name": "Beans",
+          "price": 35000
+        },
+        {
+          "name": "Bread",
+          "price": 10000
+        },
+        {
+          "name": "Ketchup",
+          "price": 10000
+        },
+        {
+          "name": "Mayonnaise",
+          "price": 10000
+        },
+        {
+          "name": "Grain Mustard",
+          "price": 10000
+        },
+        {
+          "name": "Sweet-sour sauce",
+          "price": 10000
+        }
+      ]
+    },
+    {
+      "category": "Десерты",
+      "items": [
+        {
+          "name": "Ice Cream",
+          "price": 35000
+        },
+        {
+          "name": "Baklava",
+          "price": 20000
+        },
+        {
+          "name": "Chak-Chak",
+          "price": 35000
+        },
+        {
+          "name": "Eastern Sweets",
+          "price": 80000
+        },
+        {
+          "name": "Honey Cake",
+          "price": 45000
+        },
+        {
+          "name": "Napoleon Cake",
+          "price": 45000
+        }
+      ]
+    },
+    {
+      "category": "Кофе/Чай",
+      "items": [
+        {
+          "name": "Espresso",
+          "price": 20000
+        },
+        {
+          "name": "Americano",
+          "price": 20000
+        },
+        {
+          "name": "Cappuccino",
+          "price": 25000
+        },
+        {
+          "name": "Late",
+          "price": 30000
+        },
+        {
+          "name": "Sea Buckthorn Tea",
+          "price": 40000
+        },
+        {
+          "name": "Lemon Tea",
+          "price": 30000
+        },
+        {
+          "name": "Herbal Tea",
+          "price": 30000
+        },
+        {
+          "name": "Black Tea",
+          "price": 10000
+        },
+        {
+          "name": "Green Tea",
+          "price": 10000
+        },
+        {
+          "name": "Lemon",
+          "price": 10000
+        },
+        {
+          "name": "Vodka 50ml",
+          "price": 15000
+        }
+      ]
+    },
+    {
+      "category": "Напитки",
+      "items": [
+        {
+          "name": "Water 0.5 L",
+          "price": 7000
+        },
+        {
+          "name": "Coca-Cola 0.5 L",
+          "price": 15000
+        },
+        {
+          "name": "Fanta 0.5 L",
+          "price": 15000
+        },
+        {
+          "name": "Sprite 0.5 L",
+          "price": 15000
+        },
+        {
+          "name": "Water 1 L",
+          "price": 15000
+        },
+        {
+          "name": "Coca-Cola 1 L",
+          "price": 25000
+        },
+        {
+          "name": "Fanta 1 L",
+          "price": 25000
+        },
+        {
+          "name": "Sprite 1 L",
+          "price": 25000
+        },
+        {
+          "name": "Water 1.5 L",
+          "price": 20000
+        },
+        {
+          "name": "Coca-Cola 1.5 L",
+          "price": 30000
+        },
+        {
+          "name": "Fanta 1.5 L",
+          "price": 30000
+        },
+        {
+          "name": "Sprite 1.5 L",
+          "price": 30000
+        },
+        {
+          "name": "Tarragon Mojito",
+          "price": 65000
+        },
+        {
+          "name": "Lemon Mojito",
+          "price": 65000
+        },
+        {
+          "name": "Cherry Mojito",
+          "price": 65000
+        }
+      ]
+    },
+    {
+      "category": "Пиво|Вино",
+      "items": [
+        {
+          "name": "Sarbast Original 0.5 L",
+          "price": 35000
+        },
+        {
+          "name": "Sarbast Special 0.5 L",
+          "price": 35000
+        },
+        {
+          "name": "Sarbast Lite 0.5 L",
+          "price": 35000
+        },
+        {
+          "name": "Sarbast Unfiltered 0.5 L",
+          "price": 35000
+        },
+        {
+          "name": "Tuborg 0.5 L",
+          "price": 40000
+        },
+        {
+          "name": "Bagizagan “Zulhumor” red semi-sweet",
+          "price": 130000
+        },
+        {
+          "name": "Bagizagan “Chardonnay” white dry",
+          "price": 130000
+        },
+        {
+          "name": "Bagizagan “Nargis” rose semi-sweet",
+          "price": 130000
+        },
+        {
+          "name": "Bagizagan “Merlot” red dry",
+          "price": 130000
+        },
+        {
+          "name": "Vino bokal",
+          "price": 40000
+        }
+      ]
+    },
+    {
+      "category": "Vino",
+      "items": [
+        {
+          "name": "Dish",
+          "price": 2000
+        }
+      ]
+    },
+    {
+      "category": "Закуска для пива",
+      "items": [
+        {
+          "name": "chechil cheese",
+          "price": 30000
+        }
+      ]
+    }
+  ]
+}
