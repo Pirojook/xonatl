@@ -1,0 +1,321 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Чек ресторана</title>
+
+<style>
+:root{
+  --accent:#111827;
+  --muted:#6b7280;
+  --border:#e5e7eb;
+  --bg:#ffffff;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+body{
+  margin:0;
+  padding:0;
+  background:#f3f4f6;
+  color:#111827;
+  font:12px/1.35 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+@font-face {
+  font-family: 'Pehlevi';
+  src: url('https://fonts-online.ru/fonts/pehlevi.woff2') format('woff2'),
+       url('https://fonts-online.ru/fonts/pehlevi.woff') format('woff'),
+       url('https://fonts-online.ru/fonts/pehlevi.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.page{
+  width:48mm;
+  max-width:48mm;
+  margin:0 auto;
+  background:var(--bg);
+  border:none;
+  border-radius:0;
+  box-shadow:none;
+  overflow:hidden;
+}
+
+header{
+  text-align:center;
+  padding:6px 6px;
+  border-bottom:1px dashed var(--border);
+}
+
+header img{
+  max-width:110px;
+}
+
+header h1{
+  margin:4px 0 0;
+  font-size:22px;
+  color:var(--accent);
+  font-family:'Pehlevi', serif;
+  line-height:1.1;
+}
+
+header .meta{
+  margin-top:2px;
+  color:var(--muted);
+  font-size:9px;
+}
+
+.section{padding:4px 4px;}
+
+#details .row{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  padding:1px 0;
+}
+
+#details .label{
+  color:var(--muted);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:10px;
+}
+
+thead th{
+  text-align:left;
+  font-weight:600;
+  color:var(--muted);
+  border-bottom:1px solid var(--border);
+  padding:2px 0;
+}
+
+tbody td{
+  padding:2px 0;
+  border-bottom:1px dashed var(--border);
+  vertical-align:top;
+}
+
+.name{width:42%; word-break:break-word;}
+.price{width:18%; text-align:right;}
+.qty{width:15%; text-align:center;}
+.total{width:25%; text-align:right;}
+
+.summary .row{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  padding:1px 0;
+  border-bottom: none;
+}
+
+.summary .row.total{
+
+  margin-left:-6px;
+  margin-right:-6px;
+
+  padding:6px;
+
+  font-weight:700;
+  font-size:14px;
+
+  display:flex;
+  justify-content:space-between;
+  width:calc(100% + 12px);
+}
+
+
+.summary .row.total > div{
+  display:block;
+}
+
+
+.summary .row.total > div:first-child{
+  text-align:left;
+  white-space:nowrap;
+}
+
+.summary .row.total > div:last-child{
+  margin-left:auto;
+  text-align:right;
+  white-space:nowrap;
+}
+
+.summary{
+  margin-top:6px;
+  border-top:2px solid #000;
+  padding-top:4px;
+}
+
+
+
+.note{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:10px;
+  text-align:center;
+}
+
+footer{
+  padding:4px 6px 8px;
+  text-align:center;
+  color:var(--muted);
+  font-size:8px;
+  border-top:1px dashed var(--border);
+}
+
+.actions{
+  display:flex;
+  justify-content:center;
+  padding:10px;
+}
+
+.btn{
+  cursor:pointer;
+  border:1px solid var(--border);
+  background:#fff;
+  border-radius:6px;
+  padding:6px 10px;
+  font-size:12px;
+}
+
+@media print{
+
+  @page {
+    size: 58mm auto;
+    margin: 0mm;
+  }
+
+  * {
+    margin:0 !important;
+    padding:0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body{
+    background:#fff !important;
+    width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .page{
+    width: 58mm !important;
+    max-width: 58mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border:none;
+    box-shadow:none;
+    border-radius:0;
+  }
+
+  /* Восстанавливаем нужные отступы внутри секций после общего сброса */
+  header{
+    padding: 6px 6px !important;
+    border-bottom:1px dashed var(--border);
+  }
+
+  .section{
+    padding: 4px 4px !important;
+  }
+
+  footer{
+    padding: 4px 6px 8px !important;
+    border-top:1px dashed var(--border);
+  }
+
+  thead th{
+    padding: 2px 0 !important;
+  }
+
+  tbody td{
+    padding: 2px 0 !important;
+  }
+
+  .summary{
+    margin-top: 6px !important;
+    padding-top: 4px !important;
+  }
+
+  .summary .row.total{
+    margin-left: -6px !important;
+    margin-right: -6px !important;
+    padding: 6px !important;
+    width: calc(100% + 12px) !important;
+  }
+
+  .actions{
+    display:none;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="bill">
+
+<header>
+  <img src="https://i.ibb.co/B2BxXLPv/Xon-Atlas.png">
+  <h1>Xon Atlas</h1>
+  <div class="meta">Bukhara • 8 Kh. Ibadov St. • +998907108276</div>
+</header>
+
+<section class="section" id="details">
+  <div class="row"><div class="label">Date</div><div>27.02.2026 22:32</div></div>
+  <div class="row"><div class="label">Table</div><div>4</div></div>
+  <div class="row"><div class="label">Waiter</div><div>Samir</div></div>
+  <div class="row"><div class="label">Order №</div><div>4387</div></div>
+</section>
+
+<section class="section">
+<table>
+<thead>
+<tr>
+  <th class="name">Name</th>
+  <th class="price">Price</th>
+  <th class="qty">Qty</th>
+  <th class="total">Sum</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+  <td class="name">Chak-chak</td>
+  <td class="price">25 000</td>
+  <td class="qty">9</td>
+  <td class="total">225 000</td>
+</tr>
+
+</tbody>
+</table>
+
+<div class="summary">
+  <div class="row total">
+    <div>TOTAL</div>
+    <div>258 750 UZS</div>
+  </div>
+</div>
+
+<footer>
+  <div style="margin:6px 0;">
+    <img
+      src="https://i.ibb.co/1tTfk29z/qrcode.png"
+      style="width:110px;height:auto;">
+  </div>
+  <div class="note">Thank you for being with us!</div>
+</footer>
+
+</section>
+</div>
+
+<div class="actions">
+  <button class="btn" onclick="window.print()">Печать</button>
+</div>
+
+</body>
+</html>

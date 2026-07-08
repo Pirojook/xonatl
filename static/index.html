@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+    <title>XonAtlas Waiter POS</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <section class="table-selector-screen" id="tableSelectorScreen">
+        <div class="table-selector-card">
+            <p class="eyebrow">Telegram Mini App</p>
+            <h1>Выберите стол</h1>
+            <p class="table-selector-subtitle">Сначала укажите номер стола, затем собирайте заказ.</p>
+            <div class="table-selector-grid" id="tableSelectorGrid"></div>
+            <div class="table-selector-custom">
+                <label for="tableSelectorInput">Или введите номер вручную</label>
+                <div class="table-selector-input-row">
+                    <input id="tableSelectorInput" type="number" min="1" step="1" placeholder="Например: 12">
+                    <button id="tableSelectorConfirm" type="button">Продолжить</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="app-shell hidden" id="appShell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Telegram Mini App</p>
+                <h1>Оформление заказа</h1>
+            </div>
+            <button class="topbar-action" id="themeToggle" type="button" aria-label="Переключить тему">
+                <span>◐</span>
+            </button>
+        </header>
+
+        <section class="search-panel">
+            <div class="table-badge-row">
+                <div class="table-badge" id="tableBadge">Стол не выбран</div>
+                <button class="table-change-btn" id="changeTableBtn" type="button">Сменить стол</button>
+            </div>
+            <label class="search-box" for="searchInput">
+                <span class="search-icon">⌕</span>
+                <input id="searchInput" type="search" placeholder="Поиск блюд" autocomplete="off">
+            </label>
+        </section>
+
+        <main class="content-layout">
+            <aside class="categories-panel">
+                <div class="section-head sticky-head">
+                    <h2>Категории</h2>
+                </div>
+                <nav class="categories-list" id="categoriesList"></nav>
+            </aside>
+
+            <section class="products-panel">
+                <div class="section-head sticky-head">
+                    <div>
+                        <h2 id="productsTitle">Меню</h2>
+                        <p id="productsCounter">0 блюд</p>
+                    </div>
+                </div>
+                <div class="products-grid" id="productsGrid"></div>
+                <div class="empty-products hidden" id="emptyState">
+                    <div class="empty-icon">🍽</div>
+                    <h3>Ничего не найдено</h3>
+                    <p>Попробуйте изменить запрос или выбрать другую категорию.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <aside class="order-drawer collapsed" id="orderDrawer">
+        <button class="drawer-toggle" id="drawerToggle" type="button" aria-label="Развернуть корзину">
+            <div class="drawer-handle"></div>
+            <div class="drawer-toggle-summary">
+                <div>
+                    <p class="eyebrow">Текущий заказ</p>
+                    <h2 id="drawerTitle">Стол</h2>
+                </div>
+                <div class="drawer-summary" id="drawerSummary">0 позиций</div>
+            </div>
+        </button>
+
+        <div class="drawer-content" id="drawerContent">
+            <div class="ordered-items hidden" id="orderedItems"></div>
+            <div class="order-items" id="orderItems">
+                <div class="order-empty">
+                    <div class="empty-icon">🧾</div>
+                    <p>Добавьте блюда, чтобы собрать заказ</p>
+                </div>
+            </div>
+
+            <div class="order-comment-wrap">
+                <label for="orderComment">Комментарий к заказу</label>
+                <textarea id="orderComment" rows="2" placeholder="Например: без лука, подать позже"></textarea>
+            </div>
+
+            <div class="order-footer">
+                <div class="totals-row">
+                    <span>Товаров</span>
+                    <strong id="totalItems">0</strong>
+                </div>
+                <div class="totals-row grand-total">
+                    <span>Итого</span>
+                    <strong id="totalPrice">0 сум</strong>
+                </div>
+                <button class="submit-order-btn" id="submitOrderBtn" type="button">
+                    Отправить на кухню
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="modal-overlay hidden" id="tableModalOverlay" role="dialog" aria-modal="true" aria-labelledby="tableModalTitle">
+        <div class="modal" id="tableModal">
+            <div class="modal-header">
+                <h2 id="tableModalTitle">Выберите стол</h2>
+                <button class="modal-close" id="tableModalClose" type="button" aria-label="Закрыть">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-modal-grid" id="tableModalGrid"></div>
+                <div class="table-modal-custom">
+                    <label for="tableModalInput">Или введите номер вручную</label>
+                    <div class="table-modal-input-row">
+                        <input id="tableModalInput" type="number" min="1" step="1" placeholder="Например: 12">
+                        <button id="tableModalConfirm" type="button">Подтвердить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <audio id="newOrderSound" src="/static/order.mp3" preload="auto"></audio>
+
+    <div class="app-toast" id="appToast"></div>
+
+    <template id="categoryTemplate">
+        <button class="category-btn" type="button"></button>
+    </template>
+
+    <template id="productTemplate">
+        <article class="product-card">
+            <div class="product-image-wrap">
+                <img class="product-image" alt="">
+                <button class="quick-add-btn" type="button">+</button>
+                <div class="ordered-badge hidden">✓ В заказе</div>
+            </div>
+            <div class="product-body">
+                <div>
+                    <h3 class="product-name"></h3>
+                    <p class="product-meta"></p>
+                </div>
+                <div class="product-footer">
+                    <span class="product-price"></span>
+                    <div class="quantity-controls hidden">
+                        <button class="qty-btn" type="button" data-action="decrease">−</button>
+                        <span class="qty-value">0</span>
+                        <button class="qty-btn" type="button" data-action="increase">+</button>
+                    </div>
+                    <button class="add-btn" type="button">Добавить</button>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <template id="orderItemTemplate">
+        <div class="order-item">
+            <div class="order-item__info">
+                <strong class="order-item__name"></strong>
+                <span class="order-item__price"></span>
+            </div>
+            <div class="order-item__actions">
+                <div class="quantity-controls compact">
+                    <button class="qty-btn" type="button" data-action="decrease">−</button>
+                    <span class="qty-value">0</span>
+                    <button class="qty-btn" type="button" data-action="increase">+</button>
+                </div>
+                <strong class="order-item__total"></strong>
+            </div>
+        </div>
+    </template>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

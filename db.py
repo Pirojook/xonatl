@@ -42,6 +42,7 @@ class Database:
                     waiter_id INTEGER NOT NULL,
                     status TEXT DEFAULT 'active', -- active, completed, cancelled
                     total_amount REAL DEFAULT 0,
+                    comment TEXT DEFAULT '',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (waiter_id) REFERENCES waiters (id)
@@ -139,9 +140,21 @@ class Database:
             return dict(row) if row else None
 
     def create_order(self, table_number: int, waiter_id: int) -> int:
-        """Создание нового заказа"""
+        """Создание нового заказа или получение существующего активного заказа для стола"""
         with sqlite3.connect(self.db_name) as conn:
             cursor = conn.cursor()
+            
+            # Проверяем, есть ли уже активный заказ для этого стола
+            cursor.execute(
+                '''SELECT table_number FROM orders 
+                   WHERE table_number = ? AND status = 'active'
+                   LIMIT 1''',
+                (table_number,)
+            )
+            existing_order = cursor.fetchone()
+            if existing_order:
+                # Активный заказ уже существует, возвращаем номер стола
+                return table_number
             
             # Проверяем существование стола
             table = self.get_table(table_number)
@@ -154,7 +167,6 @@ class Database:
                    VALUES (?, ?, 'active')''',
                 (table_number, waiter_id)
             )
-            order_id = cursor.lastrowid
             
             # Обновляем статус стола
             cursor.execute(
@@ -163,7 +175,7 @@ class Database:
             )
             
             conn.commit()
-            return table_number  # Возвращаем номер стола вместо ID
+            return table_number
 
     def add_order_item(self, table_number: int, item_name: str, item_price: float, quantity: int = 1) -> int:
         """Добавление позиции в заказ"""
@@ -175,7 +187,7 @@ class Database:
             # Проверяем, есть ли уже такая позиция в заказе
             cursor.execute(
                 '''SELECT quantity FROM order_items 
-                   WHERE table_number = ? AND item_name = ?''',
+                   WHERE table_number = ? AND item_name = ? AND COALESCE(sent_to_kitchen, 0) = 0''',
                 (table_number, item_name)
             )
             existing_item = cursor.fetchone()
@@ -187,15 +199,15 @@ class Database:
                 
                 cursor.execute(
                     '''UPDATE order_items SET quantity = ?, total_price = ?, updated_at = CURRENT_TIMESTAMP
-                       WHERE table_number = ? AND item_name = ?''',
+                       WHERE table_number = ? AND item_name = ? AND COALESCE(sent_to_kitchen, 0) = 0''',
                     (new_quantity, new_total_price, table_number, item_name)
                 )
             else:
                 # Если позиции нет, добавляем новую
                 cursor.execute(
-                    '''INSERT INTO order_items (table_number, item_name, item_price, quantity, total_price)
-                       VALUES (?, ?, ?, ?, ?)''',
-                    (table_number, item_name, item_price, quantity, total_price)
+                '''INSERT INTO order_items (table_number, item_name, item_price, quantity, total_price, sent_to_kitchen)
+                   VALUES (?, ?, ?, ?, ?, 0)''',
+                (table_number, item_name, item_price, quantity, total_price)
                 )
             
             # Обновляем общую сумму заказа
@@ -280,6 +292,48 @@ class Database:
             conn.commit()
             return True
 
+    def update_order_comment(self, table_number: int, comment: str) -> bool:
+        """Обновляет комментарий активного заказа"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                '''UPDATE orders
+                   SET comment = ?, updated_at = CURRENT_TIMESTAMP
+                   WHERE table_number = ? AND status = 'active' ''',
+                (comment, table_number)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def update_order_waiter(self, table_number: int, waiter_id: int) -> bool:
+        """Обновляет официанта для активного заказа"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                '''UPDATE orders
+                   SET waiter_id = ?, updated_at = CURRENT_TIMESTAMP
+                   WHERE table_number = ? AND status = 'active' ''',
+                (waiter_id, table_number)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
+
+    def get_active_order_by_table(self, table_number: int) -> Optional[Dict]:
+        """Получение активного заказа по номеру стола"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT o.*, w.full_name as waiter_name
+                FROM orders o
+                LEFT JOIN waiters w ON o.waiter_id = w.id
+                WHERE o.table_number = ? AND o.status = 'active'
+                ORDER BY o.created_at DESC
+                LIMIT 1
+            ''', (table_number,))
+            row = cursor.fetchone()
+            return dict(row) if row else None
+
     def get_active_order(self, table_number: int, waiter_id: int) -> Optional[Dict]:
         """Получение активного заказа для стола и официанта"""
         with sqlite3.connect(self.db_name) as conn:
@@ -307,6 +361,33 @@ class Database:
                 WHERE table_number = ? 
                 ORDER BY created_at
             ''', (table_number,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_unsent_order_items(self, table_number: int) -> List[Dict]:
+        """Получение текущих неотправленных/активных позиций заказа по столу"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT * FROM order_items
+                WHERE table_number = ?
+                  AND COALESCE(sent_to_kitchen, 0) = 0
+                ORDER BY created_at
+            ''', (table_number,))
+            return [dict(row) for row in cursor.fetchall()]
+
+    def get_all_active_orders(self) -> List[Dict]:
+        """Получение всех активных заказов по всем официантам"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT o.*, w.full_name as waiter_name
+                FROM orders o
+                LEFT JOIN waiters w ON o.waiter_id = w.id
+                WHERE o.status = 'active'
+                ORDER BY o.created_at DESC
+            ''')
             return [dict(row) for row in cursor.fetchall()]
 
     def get_waiter_orders(self, waiter_id: int) -> List[Dict]:
@@ -403,13 +484,22 @@ class Database:
                 category_id = categories[category_name]
                 
                 for item_idx, item in enumerate(category_data['items']):
-                    cursor.execute(
-                        '''INSERT INTO menu_items (category_id, name, price, description, sort_order)
-                           VALUES (?, ?, ?, ?, ?)''',
-                        (category_id, item['name'], item['price'], item.get('description', ''), item_idx)
-                    )
+                    cursor.execute('''
+                        INSERT INTO menu_items (category_id, name, price, description, sort_order, prep_time_minutes, image)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                    ''', (category_id, item['name'], item['price'], item.get('description', ''), item_idx, item.get('prep_time', 10), item.get('image', '')))
             
             conn.commit()
+
+    def set_item_image(self, item_name: str, image_url: str):
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                'UPDATE menu_items SET image = ? WHERE name = ?',
+                (image_url, item_name)
+            )
+            conn.commit()
+            return cursor.rowcount > 0
 
     def get_menu_categories(self) -> List[str]:
         with sqlite3.connect(self.db_name) as conn:
@@ -458,8 +548,271 @@ class Database:
             
             conn.commit()
             return True
+    def update_order_sent_to_kitchen(self, table_number: int):
+        """Отмечает только новые позиции заказа как отправленные на кухню"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE order_items
+                SET sent_to_kitchen = 1,
+                    item_status = COALESCE(item_status, 'pending'),
+                    sent_batch_at = CURRENT_TIMESTAMP
+                WHERE table_number = ? AND COALESCE(sent_to_kitchen, 0) = 0
+            ''', (table_number,))
 
+            cursor.execute('''
+                UPDATE orders 
+                SET sent_to_kitchen_at = CURRENT_TIMESTAMP, 
+                    kitchen_status = 'new',
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE table_number = ? AND status = 'active'
+            ''', (table_number,))
+            conn.commit()
 
+    def get_kitchen_orders(self, status_filter=None):
+        """Получает заказы для кухни, сгруппированные по батчам отправки"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            query = '''
+                SELECT o.*, w.full_name as waiter_name
+                FROM orders o
+                JOIN waiters w ON o.waiter_id = w.id
+                WHERE o.status = 'active' 
+                  AND o.sent_to_kitchen_at IS NOT NULL
+            '''
+            
+            if status_filter:
+                query += f" AND o.kitchen_status = '{status_filter}'"
+            
+            query += ' ORDER BY o.sent_to_kitchen_at ASC'
+            
+            cursor.execute(query)
+            rows = [dict(row) for row in cursor.fetchall()]
+            
+            # Берём последний активный заказ на стол (на случай дублей)
+            orders_by_table = {}
+            for row in rows:
+                tn = row['table_number']
+                prev = orders_by_table.get(tn)
+                if prev is None or row['id'] > prev['id']:
+                    orders_by_table[tn] = row
+            
+            result = []
+            for order in orders_by_table.values():
+                batches = self.get_order_batches(order['table_number'])
+                for batch in batches:
+                    entry = {**order, 'items': batch['items'], 'sent_to_kitchen_at': batch['sent_at']}
+                    result.append(entry)
+                
+            return result
+
+    def get_order_batches(self, table_number: int):
+        """Группирует позиции заказа по батчам отправки на кухню"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT DISTINCT COALESCE(sent_batch_at, created_at) as batch_key
+                FROM order_items
+                WHERE table_number = ?
+                  AND COALESCE(sent_to_kitchen, 0) = 1
+                ORDER BY batch_key
+            ''', (table_number,))
+            
+            batches = []
+            for row in cursor.fetchall():
+                batch_key = row['batch_key']
+                cursor.execute('''
+                    SELECT oi.*, 
+                           COALESCE(oi.prep_time_minutes, 10) as prep_time_minutes,
+                           COALESCE(oi.item_status, 'pending') as item_status
+                    FROM order_items oi
+                    WHERE oi.table_number = ?
+                      AND COALESCE(oi.sent_to_kitchen, 0) = 1
+                      AND COALESCE(oi.sent_batch_at, oi.created_at) = ?
+                    ORDER BY oi.created_at
+                ''', (table_number, batch_key))
+                
+                items = [dict(r) for r in cursor.fetchall()]
+                if items:
+                    batches.append({
+                        'sent_at': batch_key,
+                        'items': items
+                    })
+            
+            return batches
+
+    def get_kitchen_order_items(self, table_number: int):
+        """Получает все отправленные позиции заказа для истории"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT oi.*, 
+                       COALESCE(oi.prep_time_minutes, 10) as prep_time_minutes,
+                       COALESCE(oi.item_status, 'pending') as item_status
+                FROM order_items oi
+                WHERE oi.table_number = ?
+                  AND COALESCE(oi.sent_to_kitchen, 0) = 1
+                ORDER BY oi.created_at
+            ''', (table_number,))
+            
+            return [dict(row) for row in cursor.fetchall()]
+
+    def update_item_status(self, table_number: int, item_name: str, status: str):
+        """Обновляет статус позиции заказа"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            
+            if status == 'cooking':
+                cursor.execute('''
+                    UPDATE order_items 
+                    SET item_status = ?, started_at = CURRENT_TIMESTAMP
+                    WHERE table_number = ? AND item_name = ?
+                ''', (status, table_number, item_name))
+            elif status == 'ready':
+                cursor.execute('''
+                    UPDATE order_items 
+                    SET item_status = ?, ready_at = CURRENT_TIMESTAMP
+                    WHERE table_number = ? AND item_name = ?
+                ''', (status, table_number, item_name))
+            else:
+                cursor.execute('''
+                    UPDATE order_items 
+                    SET item_status = ?
+                    WHERE table_number = ? AND item_name = ?
+                ''', (status, table_number, item_name))
+            
+            conn.commit()
+            
+            # Проверяем, все ли позиции готовы
+            cursor.execute('''
+                SELECT COUNT(*) as total, 
+                       SUM(CASE WHEN item_status = 'ready' THEN 1 ELSE 0 END) as ready
+                FROM order_items 
+                WHERE table_number = ?
+            ''', (table_number,))
+            
+            result = cursor.fetchone()
+            if result[0] == result[1] and result[0] > 0:
+                # Все позиции готовы - обновляем статус заказа
+                cursor.execute('''
+                    UPDATE orders 
+                    SET kitchen_status = 'ready'
+                    WHERE table_number = ? AND status = 'active'
+                ''', (table_number,))
+                conn.commit()
+
+    def update_item_status_by_id(self, item_id: int, status: str):
+        """Обновляет статус позиции заказа по уникальному ID"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute('SELECT table_number FROM order_items WHERE id = ?', (item_id,))
+            row = cursor.fetchone()
+            if not row:
+                return False
+
+            table_number = row[0]
+
+            if status == 'cooking':
+                cursor.execute('''
+                    UPDATE order_items 
+                    SET item_status = ?, started_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ''', (status, item_id))
+            elif status == 'ready':
+                cursor.execute('''
+                    UPDATE order_items 
+                    SET item_status = ?, ready_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                ''', (status, item_id))
+            else:
+                cursor.execute('''
+                    UPDATE order_items 
+                    SET item_status = ?
+                    WHERE id = ?
+                ''', (status, item_id))
+
+            conn.commit()
+
+            cursor.execute('''
+                SELECT COUNT(*) as total,
+                       SUM(CASE WHEN item_status = 'ready' THEN 1 ELSE 0 END) as ready
+                FROM order_items
+                WHERE table_number = ?
+            ''', (table_number,))
+
+            result = cursor.fetchone()
+            if result[0] == result[1] and result[0] > 0:
+                cursor.execute('''
+                    UPDATE orders
+                    SET kitchen_status = 'ready'
+                    WHERE table_number = ? AND status = 'active'
+                ''', (table_number,))
+                conn.commit()
+
+            return True
+
+    def update_order_kitchen_status(self, table_number: int, status: str):
+        """Обновляет статус заказа на кухне"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE orders 
+                SET kitchen_status = ?
+                WHERE table_number = ? AND status = 'active'
+            ''', (status, table_number))
+            conn.commit()
+
+    def get_completed_orders(self, limit=50):
+        """Получает завершенные заказы для истории"""
+        with sqlite3.connect(self.db_name) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT o.*, w.full_name as waiter_name
+                FROM orders o
+                JOIN waiters w ON o.waiter_id = w.id
+                WHERE o.status IN ('completed', 'cancelled')
+                ORDER BY o.updated_at DESC
+                LIMIT ?
+            ''', (limit,))
+            
+            orders = [dict(row) for row in cursor.fetchall()]
+            
+            for order in orders:
+                order['items'] = self.get_kitchen_order_items(order['table_number'])
+                
+            return orders
+
+    def get_menu_item_prep_time(self, item_name: str) -> int:
+        """Получает время приготовления блюда из меню"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT prep_time_minutes FROM menu_items 
+                WHERE name = ?
+            ''', (item_name,))
+            result = cursor.fetchone()
+            return result[0] if result and result[0] else 10
+
+    # В db.py добавить:
+    def update_item_prep_time(self, table_number: int, item_name: str, prep_time: int):
+        """Обновляет время приготовления позиции заказа"""
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE order_items 
+                SET prep_time_minutes = ?
+                WHERE table_number = ? AND item_name = ? AND COALESCE(sent_to_kitchen, 0) = 0
+            ''', (prep_time, table_number, item_name))
+            conn.commit()
 
 # Создаем глобальный экземпляр базы данных
 db = Database()

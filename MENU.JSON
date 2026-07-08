@@ -5,27 +5,39 @@
       "items": [
         {
           "name": "Achichuk",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 7,
+          "image": "https://i.ibb.co/RkxQfJwK/image.png"
         },
         {
           "name": "Crispy Eggplant",
-          "price": 85000
+          "price": 85000,
+          "prep_time": 12,
+          "image": "https://i.ibb.co/SwS9g2MX/image.png"
         },
         {
           "name": "Caesar salad",
-          "price": 75000
+          "price": 75000,
+          "prep_time": 10,
+          "image": "https://i.ibb.co/GQRBwr8Y/image.png"
         },
         {
           "name": "Vitamin salad",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 8,
+          "image": "https://i.ibb.co/fVcmXxbX/image.png"
         },
         {
           "name": "Xon Atlas salad",
-          "price": 85000
+          "price": 85000,
+          "prep_time": 12,
+          "image": "https://i.ibb.co/Z1bXt2qh/image.png"
         },
         {
           "name": "Greek salad",
-          "price": 60000
+          "price": 60000,
+          "prep_time": 8,
+          "image": "https://i.ibb.co/CpymTG0h/image.png"
         }
       ]
     },
@@ -34,15 +46,21 @@
       "items": [
         {
           "name": "Vegetable Assortment",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 10,
+          "image": "https://i.ibb.co/MkXmtVSm/image.png"
         },
         {
           "name": "Bukhara Chakka",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 5,
+          "image": "https://i.ibb.co/mVr72sLQ/image.png"
         },
         {
           "name": "Pickled Assortment",
-          "price": 50000
+          "price": 50000,
+          "prep_time": 5,
+          "image": "https://i.ibb.co/CKSwN1Fk/image.png"
         }
       ]
     },
@@ -51,19 +69,27 @@
       "items": [
         {
           "name": "Samsa",
-          "price": 15000
+          "price": 15000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/0yh6WwtG/image.png"
         },
         {
           "name": "Dolma",
-          "price": 50000
+          "price": 50000,
+          "prep_time": 30,
+          "image": "https://i.ibb.co/tMj8PN31/image.png"
         },
         {
           "name": "Bichak",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 15,
+          "image": "https://i.ibb.co/cjMbf3t/image.png"
         },
         {
           "name": "Tuhum Barak",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/dw9TGRm5/image.png"
         }
       ]
     },
@@ -72,27 +98,39 @@
       "items": [
         {
           "name": "Beef Shurpa",
-          "price": 50000
+          "price": 50000,
+          "prep_time": 25,
+          "image": "https://i.ibb.co/4nKh3jsZ/image.png"
         },
         {
           "name": "Balaza",
-          "price": 50000
+          "price": 50000,
+          "prep_time": 25,
+          "image": "https://i.ibb.co/RM1wrSG/image.png"
         },
         {
           "name": "Meatball soup",
-          "price": 45000
+          "price": 45000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/5Wyjwpjs/image.png"
         },
         {
           "name": "Dumplings soup",
-          "price": 45000
+          "price": 45000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/DD0gp5Lm/image.png"
         },
         {
           "name": "Chicken Noodle soup",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 18,
+          "image": "https://i.ibb.co/8ng63XYH/image.png"
         },
         {
           "name": "Dhal",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/PZyjzRdm/image.png"
         }
       ]
     },
@@ -101,35 +139,50 @@
       "items": [
         {
           "name": "Osh Sofi",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 30,
+          "image": "https://i.ibb.co/fVgKQz8C/image.png"
         },
         {
           "name": "Lagman",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 25,
+          "image": "https://i.ibb.co/v2ZW6J6/image.png"
         },
         {
           "name": "Kayish Classic",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/wZmPBx47/image.png"
         },
         {
           "name": "Kayish vegetarian",
-          "price": 60000
+          "price": 60000,
+          "prep_time": 20,
+          "image": "https://i.ibb.co/wZmPBx47/image.png"
         },
         {
           "name": "Beef Jizz",
-          "price": 100000
+          "price": 100000,
+          "prep_time": 35,
+          "image": "https://i.ibb.co/sJRrBCG9/image.png"
         },
         {
           "name": "Kazan lamb kabob",
-          "price": 110000
+          "price": 110000,
+          "prep_time": 40,
+          "image": "https://i.ibb.co/wrRpTdYr/image.png"
         },
         {
           "name": "Chicken jizz",
-          "price": 85000
+          "price": 85000,
+          "prep_time": 30,
+          "image": "https://i.ibb.co/j96Nmy8C/image.png"
         },
         {
           "name": "Dimlama",
-          "price": 100000
+          "price": 100000,
+          "prep_time": 40
         }
       ]
     },
@@ -138,35 +191,51 @@
       "items": [
         {
           "name": "French Fries",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 12,
+          "image": "https://i.ibb.co/6RrSSQSF/image.png"
         },
         {
           "name": "Rice",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 15,
+          "image": "https://i.ibb.co/7dnVs0sS/image.png"
         },
         {
           "name": "Beans",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 15,
+          "image": "https://i.ibb.co/C3Cgm04V/image.png"
         },
         {
           "name": "Bread",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 3,
+          "image": "https://i.ibb.co/rG9LMD9t/image.png"
         },
         {
           "name": "Ketchup",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 1,
+          "image": "https://i.ibb.co/vxQSy6jv/image.png"
         },
         {
           "name": "Mayonnaise",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 1,
+          "image": "https://i.ibb.co/XnsdPKL/image.png"
         },
         {
           "name": "Grain Mustard",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 1,
+          "image": "https://i.ibb.co/BH5S5NN8/image.png"
         },
         {
           "name": "Sweet-sour sauce",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 2,
+          "image": "https://i.ibb.co/xqD0zVHm/image.png"
         }
       ]
     },
@@ -175,27 +244,39 @@
       "items": [
         {
           "name": "Ice Cream",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 5,
+          "image": "https://i.ibb.co/tpdnpPhQ/image.png"
         },
         {
           "name": "Baklava",
-          "price": 20000
+          "price": 20000,
+          "prep_time": 5,
+          "image": "https://i.ibb.co/YFhWcRVw/image.png"
         },
         {
           "name": "Chak-Chak",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 10,
+          "image": "https://i.ibb.co/bj5bvWzv/image.png"
         },
         {
           "name": "Eastern Sweets",
-          "price": 80000
+          "price": 80000,
+          "prep_time": 12,
+          "image": "https://i.ibb.co/jZZPvgTT/image.png"
         },
         {
           "name": "Honey Cake",
-          "price": 45000
+          "price": 45000,
+          "prep_time": 10,
+          "image": "https://i.ibb.co/zhhDCkJ1/image.png"
         },
         {
           "name": "Napoleon Cake",
-          "price": 45000
+          "price": 45000,
+          "prep_time": 10,
+          "image": "https://i.ibb.co/nMtVSTcP/image.png"
         }
       ]
     },
@@ -204,47 +285,59 @@
       "items": [
         {
           "name": "Espresso",
-          "price": 20000
+          "price": 20000,
+          "prep_time": 3
         },
         {
           "name": "Americano",
-          "price": 20000
+          "price": 20000,
+          "prep_time": 4
         },
         {
           "name": "Cappuccino",
-          "price": 25000
+          "price": 25000,
+          "prep_time": 5
         },
         {
           "name": "Late",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 5
         },
         {
           "name": "Sea Buckthorn Tea",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 7,
+          "image": "https://i.ibb.co/NnxwG6ST/image.png"
         },
         {
           "name": "Lemon Tea",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 5
         },
         {
           "name": "Herbal Tea",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 5
         },
         {
           "name": "Black Tea",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 3
         },
         {
           "name": "Green Tea",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 3
         },
         {
           "name": "Lemon",
-          "price": 10000
+          "price": 10000,
+          "prep_time": 1
         },
         {
           "name": "Vodka 50ml",
-          "price": 15000
+          "price": 15000,
+          "prep_time": 1
         }
       ]
     },
@@ -253,63 +346,81 @@
       "items": [
         {
           "name": "Water 0.5 L",
-          "price": 7000
+          "price": 7000,
+          "prep_time": 1
         },
         {
           "name": "Coca-Cola 0.5 L",
-          "price": 15000
+          "price": 15000,
+          "prep_time": 1
         },
         {
           "name": "Fanta 0.5 L",
-          "price": 15000
+          "price": 15000,
+          "prep_time": 1
         },
         {
           "name": "Sprite 0.5 L",
-          "price": 15000
+          "price": 15000,
+          "prep_time": 1
         },
         {
           "name": "Water 1 L",
-          "price": 15000
+          "price": 15000,
+          "prep_time": 1
         },
         {
           "name": "Coca-Cola 1 L",
-          "price": 25000
+          "price": 25000,
+          "prep_time": 1
         },
         {
           "name": "Fanta 1 L",
-          "price": 25000
+          "price": 25000,
+          "prep_time": 1
         },
         {
           "name": "Sprite 1 L",
-          "price": 25000
+          "price": 25000,
+          "prep_time": 1
         },
         {
           "name": "Water 1.5 L",
-          "price": 20000
+          "price": 20000,
+          "prep_time": 1
         },
         {
           "name": "Coca-Cola 1.5 L",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 1
         },
         {
           "name": "Fanta 1.5 L",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 1
         },
         {
           "name": "Sprite 1.5 L",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 1
         },
         {
           "name": "Tarragon Mojito",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 8,
+          "image": "https://i.ibb.co/ns41Grxn/image.png"
         },
         {
           "name": "Lemon Mojito",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 8,
+          "image": "https://i.ibb.co/B2twjk0f/image.png"
         },
         {
           "name": "Cherry Mojito",
-          "price": 65000
+          "price": 65000,
+          "prep_time": 8,
+          "image": "https://i.ibb.co/nsGVtpxc/image.png"
         }
       ]
     },
@@ -318,43 +429,53 @@
       "items": [
         {
           "name": "Sarbast Original 0.5 L",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 1
         },
         {
           "name": "Sarbast Special 0.5 L",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 1
         },
         {
           "name": "Sarbast Lite 0.5 L",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 1
         },
         {
           "name": "Sarbast Unfiltered 0.5 L",
-          "price": 35000
+          "price": 35000,
+          "prep_time": 1
         },
         {
           "name": "Tuborg 0.5 L",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 1
         },
         {
-          "name": "Bagizagan “Zulhumor” red semi-sweet",
-          "price": 130000
+          "name": "Bagizagan \"Zulhumor\" red semi-sweet",
+          "price": 130000,
+          "prep_time": 1
         },
         {
-          "name": "Bagizagan “Chardonnay” white dry",
-          "price": 130000
+          "name": "Bagizagan \"Chardonnay\" white dry",
+          "price": 130000,
+          "prep_time": 1
         },
         {
-          "name": "Bagizagan “Nargis” rose semi-sweet",
-          "price": 130000
+          "name": "Bagizagan \"Nargis\" rose semi-sweet",
+          "price": 130000,
+          "prep_time": 1
         },
         {
-          "name": "Bagizagan “Merlot” red dry",
-          "price": 130000
+          "name": "Bagizagan \"Merlot\" red dry",
+          "price": 130000,
+          "prep_time": 1
         },
         {
           "name": "Vino bokal",
-          "price": 40000
+          "price": 40000,
+          "prep_time": 1
         }
       ]
     },
@@ -363,7 +484,8 @@
       "items": [
         {
           "name": "Dish",
-          "price": 2000
+          "price": 2000,
+          "prep_time": 1
         }
       ]
     },
@@ -372,7 +494,12 @@
       "items": [
         {
           "name": "chechil cheese",
-          "price": 30000
+          "price": 30000,
+          "prep_time": 5
+        },
+        {
+          "name": "test",
+          "price": 10000
         }
       ]
     }

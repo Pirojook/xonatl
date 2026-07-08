@@ -20,7 +20,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Конфигурация
 API_TOKEN = '8350331260:AAFCMbZz2WsFes2DU-FNSKYP2a35-tsZFQw'
-GROUP_CHAT_ID = -1003065380323  # ID группы для отправки заказов
+GROUP_CHAT_ID = -1002704977137  # ID группы для отправки заказов
 
 # Список администраторов (замените на реальные ID)
 ADMIN_IDS = [6828316648, 512534440]  # Добавьте сюда свой Telegram ID
@@ -59,6 +59,7 @@ class AdminStates(StatesGroup):
     waiting_for_item_select = State()
     waiting_for_edit_name = State()
     waiting_for_edit_price = State()
+    waiting_for_edit_image = State()
 
 def resource_path(relative_path):
     try:
@@ -412,6 +413,7 @@ async def admin_edit_item_options(callback_query: types.CallbackQuery, state: FS
     builder = InlineKeyboardBuilder()
     builder.button(text="📝 Изменить название", callback_data="edit_name")
     builder.button(text="💰 Изменить цену", callback_data="edit_price")
+    builder.button(text="🖼 Изменить картинку", callback_data="edit_image")
     builder.button(text="◀️ Назад", callback_data="admin_back")
     builder.adjust(2)
     
@@ -508,6 +510,52 @@ async def admin_save_new_price(message: types.Message, state: FSMContext):
         
     except ValueError:
         await message.answer("❌ Пожалуйста, введите число (цену в сумах)")
+    except Exception as e:
+        await message.answer(f"❌ Ошибка: {str(e)}")
+
+@dp.callback_query(F.data == "edit_image")
+async def admin_edit_image(callback_query: types.CallbackQuery, state: FSMContext):
+    await state.set_state(AdminStates.waiting_for_edit_image)
+    await callback_query.message.edit_text(
+        "🖼 *Введите URL картинки* для блюда:\n\n"
+        "(или отправьте /cancel для отмены)",
+        parse_mode='Markdown'
+    )
+
+@dp.message(AdminStates.waiting_for_edit_image)
+async def admin_save_new_image(message: types.Message, state: FSMContext):
+    if message.text == "/cancel":
+        await state.clear()
+        await message.answer("❌ Редактирование отменено")
+        return
+    
+    image_url = message.text.strip()
+    data = await state.get_data()
+    category_name = data['edit_category']
+    item_name = data['edit_item_name']
+    
+    try:
+        with open('menu.json', 'r', encoding='utf-8') as f:
+            menu_data = json.load(f)
+        
+        # Находим и обновляем блюдо
+        for category in menu_data['menu']:
+            if category['category'] == category_name:
+                for item in category['items']:
+                    if item['name'] == item_name:
+                        item['image'] = image_url
+                        break
+        
+        with open('menu.json', 'w', encoding='utf-8') as f:
+            json.dump(menu_data, f, ensure_ascii=False, indent=2)
+        
+        await message.answer(
+            f"✅ Картинка для *{item_name}* установлена:\n`{image_url}`\n\n"
+            "Не забудьте обновить меню в БД через /admin → 'Обновить меню в БД'",
+            parse_mode='Markdown'
+        )
+        await admin_panel(message, state)
+        
     except Exception as e:
         await message.answer(f"❌ Ошибка: {str(e)}")
 
@@ -680,14 +728,12 @@ async def process_table_selection(callback_query: types.CallbackQuery, state: FS
         await callback_query.answer("Ошибка: официант не найден")
         return
     
-    # Проверяем, есть ли уже активный заказ для этого стола
-    existing_order = db.get_active_order(table_number, waiter['id'])
+    existing_order = db.get_active_order_by_table(table_number)
     if existing_order:
         await state.update_data(table_number=table_number)
-        await callback_query.answer(f"Выбран стол {table_number}")
+        await callback_query.answer(f"Открыт активный заказ стола {table_number}")
         await show_categories_from_callback(callback_query, state)
     else:
-        # Создаем новый заказ
         db.create_order(table_number, waiter['id'])
         await state.update_data(table_number=table_number)
         await callback_query.answer(f"Создан заказ для стола {table_number}")
@@ -700,15 +746,16 @@ async def show_active_orders(message: types.Message):
         await message.answer("Официант не найден")
         return
     
-    orders = db.get_waiter_orders(waiter['id'])
+    orders = db.get_all_active_orders()
     
     if orders:
         response = f"👨‍🍳 *Официант: {waiter['full_name']}*\n\n"
-        response += "📋 *Ваши активные заказы:*\n\n"
+        response += "📋 *Все активные заказы:*\n\n"
         
         for order in orders:
             order_items = db.get_order_items(order['table_number'])
             response += f"🍽️ *Стол {order['table_number']}:*\n"
+            response += f"   👨‍🍳 Официант: {escape_markdown(order.get('waiter_name') or '—')}\n"
             total = order['total_amount']
             for item in order_items:
                 response += f"   • {item['item_name']} x{item['quantity']} - {format_price(item['total_price'])}\n"
@@ -716,7 +763,6 @@ async def show_active_orders(message: types.Message):
             response += f"   💰 *Итого: {format_price(total)}*\n"
             response += f"   ⏰ *Создан: {order['created_at']}*\n\n"
         
-        # Добавляем кнопки для управления заказами
         builder = InlineKeyboardBuilder()
         for order in orders:
             builder.button(text=f"✏️ Редактировать стол {order['table_number']}", callback_data=f"edit_table_{order['table_number']}")
@@ -724,7 +770,7 @@ async def show_active_orders(message: types.Message):
         
         await message.answer(response, reply_markup=builder.as_markup(), parse_mode='Markdown')
     else:
-        await message.answer("У вас нет активных заказов.")
+        await message.answer("В базе нет активных заказов.")
 
 # Обработка редактирования стола из активных заказов
 @dp.callback_query(F.data.startswith('edit_table_'))
@@ -736,13 +782,11 @@ async def handle_edit_table(callback_query: types.CallbackQuery, state: FSMConte
         await callback_query.answer("Официант не найден")
         return
     
-    # Находим заказ для этого стола
-    order = db.get_active_order(table_number, waiter['id'])
+    order = db.get_active_order_by_table(table_number)
     if not order:
         await callback_query.answer("Заказ не найден")
         return
     
-    # Сохраняем данные в state и переходим к редактированию
     await state.update_data(table_number=table_number)
     await show_order_for_editing(callback_query, state, table_number)
 
@@ -948,18 +992,19 @@ async def send_order_from_edit(callback_query: types.CallbackQuery, state: FSMCo
 async def show_active_orders_from_callback(callback_query: types.CallbackQuery):
     waiter = db.get_waiter(callback_query.from_user.id)
     if not waiter:
-        await callback_query.message.edit_text("Официант не найден")
+        await callback_query.answer("Официант не найден")
         return
     
-    orders = db.get_waiter_orders(waiter['id'])
+    orders = db.get_all_active_orders()
     
     if orders:
         response = f"👨‍🍳 *Официант: {waiter['full_name']}*\n\n"
-        response += "📋 *Ваши активные заказы:*\n\n"
+        response += "📋 *Все активные заказы:*\n\n"
         
         for order in orders:
             order_items = db.get_order_items(order['table_number'])
             response += f"🍽️ *Стол {order['table_number']}:*\n"
+            response += f"   👨‍🍳 Официант: {escape_markdown(order.get('waiter_name') or '—')}\n"
             total = order['total_amount']
             for item in order_items:
                 response += f"   • {item['item_name']} x{item['quantity']} - {format_price(item['total_price'])}\n"
@@ -974,7 +1019,8 @@ async def show_active_orders_from_callback(callback_query: types.CallbackQuery):
         
         await callback_query.message.edit_text(response, reply_markup=builder.as_markup(), parse_mode='Markdown')
     else:
-        await callback_query.message.edit_text("У вас нет активных заказов.")
+        await callback_query.message.edit_text("В базе нет активных заказов.")
+
 
 # Показать категории из callback
 async def show_categories_from_callback(callback_query: types.CallbackQuery, state: FSMContext):
@@ -1252,18 +1298,34 @@ async def confirm_send_order(callback_query: types.CallbackQuery, state: FSMCont
     comment = user_data.get('order_comment', '')
     
     if table_number:
-        order_items = db.get_order_items(table_number)
-        order = db.get_active_order(table_number, callback_query.from_user.id)
-        order_total = order['total_amount'] if order else sum(item['total_price'] for item in order_items)
+        all_items = db.get_order_items(table_number)
+        unsent_items = db.get_unsent_order_items(table_number)
         
-        # Формируем сообщение для кухни
+        if not unsent_items:
+            await callback_query.answer("❌ Нет новых позиций для отправки")
+            return
+        
+        unsent_ids = set(item['id'] for item in unsent_items)
+        previous_items = [item for item in all_items if item['id'] not in unsent_ids]
+
+        order = db.get_active_order(table_number, callback_query.from_user.id)
+        order_total = order['total_amount'] if order else sum(item['total_price'] for item in all_items)
+        
+        # Формируем сообщение для кухни (Telegram)
         order_message = f"🍽️ *НОВЫЙ ЗАКАЗ!* 🍽️\n\n"
         order_message += f"👨‍🍳 *Официант:* {escape_markdown(waiter_name)}\n"
         order_message += f"🪑 *Стол:* {table_number}\n\n"
         order_message += "📋 *Заказ:*\n"
         
-        for item in order_items:
-            # Экранируем названия блюд
+        # Ранее отправленные позиции
+        if previous_items:
+            for item in previous_items:
+                escaped_item_name = escape_markdown(item['item_name'])
+                order_message += f"• {escaped_item_name} x{item['quantity']} - {format_price(item['total_price'])}\n"
+            order_message += "\n✅ *ДОБАВКА*\n"
+        
+        # Новые позиции
+        for item in unsent_items:
             escaped_item_name = escape_markdown(item['item_name'])
             order_message += f"• {escaped_item_name} x{item['quantity']} - {format_price(item['total_price'])}\n"
         
@@ -1275,10 +1337,25 @@ async def confirm_send_order(callback_query: types.CallbackQuery, state: FSMCont
         order_message += f"\n💰 *Общая сумма:* {format_price(order_total)}\n"
         order_message += f"⏰ *Время:* {datetime.now().strftime('%H:%M')}"
         
-        # Отправляем в группу
+        # Отправляем заказ в Telegram-группу
         try:
             await bot.send_message(GROUP_CHAT_ID, order_message, parse_mode='Markdown')
             await callback_query.answer("✅ Заказ отправлен на кухню!")
+            
+            # ОТПРАВЛЯЕМ ЗАКАЗ НА ВЕБ-ИНТЕРФЕЙС КУХНИ
+            try:
+                # Добавляем время приготовления только для новых, ещё не отправленных позиций
+                for item in unsent_items:
+                    prep_time = db.get_menu_item_prep_time(item['item_name'])
+                    db.update_item_prep_time(table_number, item['item_name'], prep_time)
+
+                # Отмечаем новые позиции как отправленные на кухню
+                db.update_order_sent_to_kitchen(table_number)
+                
+                logging.info(f"✅ Заказ для стола {table_number} отправлен на веб-кухню")
+            except Exception as e:
+                logging.error(f"❌ Ошибка отправки на веб-кухню: {e}")
+                # Не прерываем выполнение, даже если веб-часть не работает
             
             # Очищаем состояние
             await state.clear()
@@ -1296,7 +1373,7 @@ async def confirm_send_order(callback_query: types.CallbackQuery, state: FSMCont
             )
             
         except Exception as e:
-            print(f"Ошибка отправки: {e}")
+            logging.error(f"❌ Ошибка отправки заказа в Telegram: {e}")
             await callback_query.answer("❌ Ошибка отправки заказа")
     
     else:
